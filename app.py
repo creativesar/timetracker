@@ -178,7 +178,7 @@ if selected_timezone:
             mode='markers+text',
             marker=dict(
                 size=15,
-                color='#FF4B4B',  # Brighter red
+                color='#FF4B4B',
                 symbol='circle',
                 line=dict(width=2, color='white'),
                 opacity=1,
@@ -189,20 +189,22 @@ if selected_timezone:
             name=selected_timezone
         ))
 
-        # Add night-side shadow effect
-        night_coords = []
-        for i in range(360):
-            night_coords.append([i - 180, -89.9])
-            night_coords.append([i - 180, 89.9])
+        # Create night-side effect using a different approach
+        night_lons = np.linspace(-180, 180, 360)
+        night_lats = np.linspace(-90, 90, 180)
+        lon_grid, lat_grid = np.meshgrid(night_lons, night_lats)
         
         fig.add_trace(go.Scattergeo(
-            lon=[coord[0] for coord in night_coords],
-            lat=[coord[1] for coord in night_coords],
-            mode='lines',
-            fill='tonexty',
-            fillcolor='rgba(0, 0, 0, 0.2)',
-            line=dict(width=0),
-            showlegend=False
+            lon=lon_grid.flatten(),
+            lat=lat_grid.flatten(),
+            mode='markers',
+            marker=dict(
+                size=1,
+                color='rgba(0, 0, 0, 0.2)',
+                opacity=0.3
+            ),
+            showlegend=False,
+            hoverinfo='skip'
         ))
 
         # Enhanced layout configuration
