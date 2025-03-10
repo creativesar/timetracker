@@ -216,7 +216,6 @@ if selected_timezone:
                 framecolor='rgb(50, 50, 50)',
                 showrivers=True,
                 rivercolor='rgb(204, 229, 255)',
-                showcountries=True,
                 countrywidth=0.5,
                 showsubunits=True,
                 subunitwidth=0.5
