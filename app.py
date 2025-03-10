@@ -212,9 +212,9 @@ if selected_timezone:
             geo=dict(
                 projection_type='orthographic',
                 showland=True,
-                landcolor='rgb(98, 131, 149)',  # Steel blue land
+                landcolor='rgb(98, 131, 149)',
                 showocean=True,
-                oceancolor='rgb(28, 107, 160)',  # Deep blue ocean
+                oceancolor='rgb(28, 107, 160)',
                 showcoastlines=True,
                 coastlinecolor='rgb(255, 255, 255)',
                 coastlinewidth=1.5,
@@ -225,25 +225,28 @@ if selected_timezone:
                 bgcolor='rgba(0, 0, 0, 0)',
                 projection=dict(
                     type='orthographic',
-                    scale=1.4  # Larger globe
+                    scale=1.3,
+                    rotation=dict(
+                        lon=lon,
+                        lat=lat,
+                        roll=0
+                    )
                 ),
                 lonaxis=dict(
-                    showgrid=True,
-                    gridcolor='rgba(255, 255, 255, 0.2)',
-                    gridwidth=0.5
+                    showgrid=False,  # Hide longitude grid
                 ),
                 lataxis=dict(
-                    showgrid=True,
-                    gridcolor='rgba(255, 255, 255, 0.2)',
-                    gridwidth=0.5
+                    showgrid=False,  # Hide latitude grid
                 ),
                 center=dict(lon=lon, lat=lat),
                 projection_rotation=dict(lon=lon, lat=lat, roll=0)
             ),
-            height=650,
-            margin=dict(l=0, r=0, t=30, b=0),
+            width=600,  # Fixed width
+            height=600,  # Equal height for perfect circle
+            margin=dict(l=0, r=0, t=0, b=0),  # Remove margins
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
+            showlegend=False
         )
 
         # Add glow effects
