@@ -166,50 +166,106 @@ if selected_timezone:
     
     # Create the globe visualization
     with col2:
-        # Get coordinates for the selected timezone
         lon, lat = timezone_row['longitude'], timezone_row['latitude']
         
-        # Create a globe using Plotly
         fig = go.Figure()
         
-        # Add the globe
+        # Add the marker for selected location
         fig.add_trace(go.Scattergeo(
             lon=[lon],
             lat=[lat],
             text=[selected_timezone],
-            mode='markers',
+            mode='markers+text',
             marker=dict(
-                size=10,
-                color='red',
-                line=dict(width=3, color='rgba(68, 68, 68, 0)')
+                size=12,
+                color='#ff3b3b',
+                symbol='circle',
+                line=dict(width=2, color='#ffffff'),
+                opacity=0.9
             ),
+            textfont=dict(color='#ffffff', size=12, family='Arial'),
+            textposition='top center',
             name=selected_timezone
         ))
         
-        # Configure the layout
+        # Configure the layout with enhanced styling
         fig.update_layout(
-            title=f'Location: {selected_timezone}',
             geo=dict(
                 projection_type='orthographic',
                 showland=True,
-                landcolor='rgb(217, 217, 217)',
-                oceancolor='rgb(123, 199, 255)',
+                landcolor='rgb(53, 79, 82)',      # Darker land color
                 showocean=True,
+                oceancolor='rgb(37, 85, 133)',    # Deeper ocean blue
                 showcoastlines=True,
-                coastlinecolor='rgb(80, 80, 80)',
-                showlakes=True,
-                lakecolor='rgb(123, 199, 255)',
+                coastlinecolor='rgb(255, 255, 255)',
+                coastlinewidth=1,
                 showcountries=True,
-                countrycolor='rgb(80, 80, 80)',
-                projection_rotation=dict(lon=lon, lat=lat, roll=0),
-                bgcolor='rgba(255, 255, 255, 0)'
+                countrycolor='rgb(255, 255, 255)',
+                countrywidth=0.5,
+                showframe=False,
+                bgcolor='rgba(0, 0, 0, 0)',
+                projection=dict(
+                    type='orthographic',
+                    scale=1.2
+                ),
+                showrivers=True,
+                rivercolor='rgb(37, 85, 133)',
+                showlakes=True,
+                lakecolor='rgb(37, 85, 133)',
+                center=dict(lon=lon, lat=lat),
+                projection_rotation=dict(lon=lon, lat=lat, roll=0)
             ),
-            height=500,
-            margin=dict(l=0, r=0, t=30, b=0)
+            width=600,
+            height=600,
+            margin=dict(l=0, r=0, t=0, b=0),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            showlegend=False
         )
+
+        # Add glow effect around selected point
+        for size, opacity in [(30, 0.2), (20, 0.3), (15, 0.4)]:
+            fig.add_trace(go.Scattergeo(
+                lon=[lon],
+                lat=[lat],
+                mode='markers',
+                marker=dict(
+                    size=size,
+                    color=f'rgba(255, 59, 59, {opacity})',
+                    line=dict(width=0)
+                ),
+                showlegend=False,
+                hoverinfo='skip'
+            ))
+
+        # Add major cities as reference points
+        major_cities = {
+            'New York': (-74.0060, 40.7128),
+            'London': (-0.1278, 51.5074),
+            'Tokyo': (139.6503, 35.6762),
+            'Dubai': (55.2708, 25.2048),
+            'Singapore': (103.8198, 1.3521)
+        }
         
-        # Display the globe
-        st.plotly_chart(fig, use_container_width=True)
+        city_lons, city_lats = zip(*major_cities.values())
+        fig.add_trace(go.Scattergeo(
+            lon=city_lons,
+            lat=city_lats,
+            mode='markers',
+            marker=dict(
+                size=4,
+                color='rgba(255, 255, 255, 0.8)',
+                line=dict(width=1, color='rgba(255, 255, 255, 0.5)')
+            ),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+
+        # Display the enhanced globe
+        st.plotly_chart(fig, use_container_width=True, config={
+            'displayModeBar': False,
+            'scrollZoom': True
+        })
 else:
     st.info("Please select a timezone from the sidebar to view the current time and location on the globe.")
 
