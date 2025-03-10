@@ -231,36 +231,89 @@ if selected_timezone:
 else:
     st.info("Please select a timezone from the sidebar to view the current time and location on the globe.")
 
-# Add a world clock section
-st.header("World Clock")
-
-# Select multiple timezones for comparison
-selected_timezones = st.multiselect(
-    "Select multiple timezones to compare",
-    options=sorted(timezone_data['timezone'].tolist()),
-    default=['America/New_York', 'Europe/London', 'Asia/Tokyo', 'Australia/Sydney']
-)
-
-if selected_timezones:
-    # Create a dataframe for the selected timezones
-    world_clock_data = []
-    
-    for tz_name in selected_timezones:
-        tz = pytz.timezone(tz_name)
-        current_time = datetime.now(tz)
-        
-        world_clock_data.append({
-            'Timezone': tz_name,
-            'Time': current_time.strftime("%H:%M:%S"),
-            'Date': current_time.strftime("%d %b %Y"),
-            'Day': current_time.strftime("%A"),
-            'UTC Offset': current_time.strftime("%z")
-        })
-    
-    # Display the world clock
-    st.dataframe(pd.DataFrame(world_clock_data), use_container_width=True)
-
-# Add footer
+# Add a world clock section with improved styling
 st.markdown("---")
-st.markdown("### Global Time Tracker App")
-st.markdown("Track time across different timezones with an interactive globe visualization.")
+st.markdown("<h2 style='text-align: center; color: #2E4053;'>🌐 World Clock</h2>", unsafe_allow_html=True)
+
+# Create a container for better spacing
+with st.container():
+    # Add description
+    st.markdown("""
+        <div style='text-align: center; margin-bottom: 20px; color: #566573;'>
+            Compare times across multiple cities and regions worldwide
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Enhanced timezone selector
+    selected_timezones = st.multiselect(
+        "Select cities to compare",
+        options=sorted(timezone_data['timezone'].tolist()),
+        default=['America/New_York', 'Europe/London', 'Asia/Tokyo', 'Australia/Sydney'],
+        help="Choose multiple cities to compare their current times"
+    )
+
+    if selected_timezones:
+        # Create a dataframe for the selected timezones
+        world_clock_data = []
+        
+        for tz_name in selected_timezones:
+            tz = pytz.timezone(tz_name)
+            current_time = datetime.now(tz)
+            
+            # Format location name for better display
+            location = tz_name.split('/')[-1].replace('_', ' ')
+            
+            world_clock_data.append({
+                'City': location,
+                'Time': current_time.strftime("%H:%M:%S"),
+                'Date': current_time.strftime("%d %b %Y"),
+                'Day': current_time.strftime("%A"),
+                'UTC Offset': current_time.strftime("UTC%z")
+            })
+        
+        # Convert to DataFrame and style it
+        df = pd.DataFrame(world_clock_data)
+        
+        # Apply custom styling to the dataframe
+        st.dataframe(
+            df,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "City": st.column_config.TextColumn(
+                    "Location",
+                    help="City/Region name",
+                    width="medium"
+                ),
+                "Time": st.column_config.TextColumn(
+                    "Current Time",
+                    help="Local time",
+                    width="small"
+                ),
+                "Date": st.column_config.TextColumn(
+                    "Date",
+                    help="Local date",
+                    width="medium"
+                ),
+                "Day": st.column_config.TextColumn(
+                    "Day",
+                    help="Day of the week",
+                    width="small"
+                ),
+                "UTC Offset": st.column_config.TextColumn(
+                    "Timezone",
+                    help="UTC offset",
+                    width="small"
+                )
+            }
+        )
+
+# Enhanced footer with better styling
+st.markdown("---")
+st.markdown("""
+    <div style='text-align: center; padding: 20px;'>
+        <h3 style='color: #2E4053;'>🌍 Global Time Tracker</h3>
+        <p style='color: #566573;'>An interactive tool for tracking and comparing times across different timezones worldwide.</p>
+        <p style='color: #566573; font-size: 0.8em;'>Features: Interactive Globe Visualization • Real-time Updates • Multiple Timezone Comparison</p>
+    </div>
+""", unsafe_allow_html=True)
