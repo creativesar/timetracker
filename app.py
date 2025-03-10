@@ -166,88 +166,99 @@ if selected_timezone:
     
     # Create the globe visualization
     with col2:
-        # Get coordinates for the selected timezone
         lon, lat = timezone_row['longitude'], timezone_row['latitude']
         
-        # Create a globe using Plotly
         fig = go.Figure()
         
-        # Add the base globe layer
+        # Add Earth's surface with enhanced styling
         fig.add_trace(go.Scattergeo(
             lon=[lon],
             lat=[lat],
             text=[selected_timezone],
             mode='markers+text',
             marker=dict(
-                size=12,
-                color='red',
+                size=15,
+                color='#FF4B4B',  # Brighter red
                 symbol='circle',
                 line=dict(width=2, color='white'),
-                opacity=0.8,
+                opacity=1,
                 sizemode='diameter'
             ),
-            textfont=dict(color='white', size=12),
+            textfont=dict(color='white', size=14, family='Arial Black'),
             textposition='top center',
             name=selected_timezone
         ))
+
+        # Add night-side shadow effect
+        night_coords = []
+        for i in range(360):
+            night_coords.append([i - 180, -89.9])
+            night_coords.append([i - 180, 89.9])
         
-        # Configure the layout with enhanced 3D styling
+        fig.add_trace(go.Scattergeo(
+            lon=[coord[0] for coord in night_coords],
+            lat=[coord[1] for coord in night_coords],
+            mode='lines',
+            fill='tonexty',
+            fillcolor='rgba(0, 0, 0, 0.2)',
+            line=dict(width=0),
+            showlegend=False
+        ))
+
+        # Enhanced layout configuration
         fig.update_layout(
-            title=dict(
-                text=f'Location: {selected_timezone}',
-                font=dict(size=20, color='#1f77b4')
-            ),
             geo=dict(
                 projection_type='orthographic',
                 showland=True,
-                landcolor='rgb(100, 125, 100)',  # Darker land color
-                countrycolor='rgb(204, 204, 204)',
-                oceancolor='rgba(0, 121, 241, 0.8)',  # More vibrant ocean
+                landcolor='rgb(98, 131, 149)',  # Steel blue land
                 showocean=True,
+                oceancolor='rgb(28, 107, 160)',  # Deep blue ocean
                 showcoastlines=True,
                 coastlinecolor='rgb(255, 255, 255)',
-                coastlinewidth=1.5,  # Thicker coastlines
-                showlakes=True,
-                lakecolor='rgba(0, 121, 241, 0.8)',
+                coastlinewidth=1.5,
                 showcountries=True,
-                countrywidth=0.8,  # Thicker country borders
+                countrycolor='rgb(255, 255, 255)',
+                countrywidth=0.8,
                 showframe=False,
-                showrivers=True,
-                rivercolor='rgba(0, 121, 241, 0.8)',
-                projection_rotation=dict(lon=lon, lat=lat, roll=0),
                 bgcolor='rgba(0, 0, 0, 0)',
                 projection=dict(
                     type='orthographic',
-                    scale=1.3  # Increase the globe size
+                    scale=1.4  # Larger globe
                 ),
-                center=dict(
-                    lon=lon,
-                    lat=lat
-                )
+                lonaxis=dict(
+                    showgrid=True,
+                    gridcolor='rgba(255, 255, 255, 0.2)',
+                    gridwidth=0.5
+                ),
+                lataxis=dict(
+                    showgrid=True,
+                    gridcolor='rgba(255, 255, 255, 0.2)',
+                    gridwidth=0.5
+                ),
+                center=dict(lon=lon, lat=lat),
+                projection_rotation=dict(lon=lon, lat=lat, roll=0)
             ),
-            height=600,  # Increased height
+            height=650,
             margin=dict(l=0, r=0, t=30, b=0),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
         )
 
-        # Add atmosphere glow effect
-        fig.add_trace(go.Scattergeo(
-            lon=[lon],
-            lat=[lat],
-            mode='markers',
-            marker=dict(
-                size=40,
-                color='rgba(70, 130, 180, 0.2)',
-                gradient=dict(
-                    type='radial',
-                    color='rgba(70, 130, 180, 0)'
-                )
-            ),
-            showlegend=False
-        ))
+        # Add glow effects
+        for size, opacity in [(50, 0.3), (40, 0.2), (30, 0.1)]:
+            fig.add_trace(go.Scattergeo(
+                lon=[lon],
+                lat=[lat],
+                mode='markers',
+                marker=dict(
+                    size=size,
+                    color='rgba(255, 75, 75, {})'.format(opacity),
+                    line=dict(width=0),
+                ),
+                showlegend=False
+            ))
 
-        # Add interactive controls
+        # Add interactive controls with more options
         fig.update_layout(
             updatemenus=[
                 dict(
@@ -255,9 +266,14 @@ if selected_timezone:
                     showactive=False,
                     buttons=[
                         dict(
-                            label='Rotate',
-                            method='animate',
-                            args=[None, dict(frame=dict(duration=100, redraw=True), fromcurrent=True)],
+                            label='Rotate Right',
+                            method='relayout',
+                            args=[{'geo.projection_rotation.lon': lon + 20}],
+                        ),
+                        dict(
+                            label='Rotate Left',
+                            method='relayout',
+                            args=[{'geo.projection_rotation.lon': lon - 20}],
                         ),
                         dict(
                             label='Reset View',
@@ -269,15 +285,18 @@ if selected_timezone:
                     pad=dict(r=10, t=10),
                     x=0.1,
                     y=0,
+                    bgcolor='rgba(50, 50, 50, 0.7)',
+                    font=dict(color='white')
                 )
             ]
         )
 
-        # Display the globe
+        # Display the enhanced globe
         st.plotly_chart(fig, use_container_width=True, config={
             'displayModeBar': True,
             'modeBarButtonsToRemove': ['select2d', 'lasso2d'],
             'displaylogo': False,
+            'scrollZoom': True
         })
 else:
     st.info("Please select a timezone from the sidebar to view the current time and location on the globe.")
